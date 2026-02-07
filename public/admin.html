@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel — Community Calendar</title>
+    <style>
+        @font-face { font-family:'Star3000'; src:url('fonts/Star3000.ttf') format('truetype'); font-weight:normal; }
+        @font-face { font-family:'Star3000'; src:url('fonts/Star3000_Heavy.ttf') format('truetype'); font-weight:bold; }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family:'Star3000',monospace;
+            background:#0000FF;
+            color:#fff;
+            min-height:100vh;
+        }
+
+        .admin-topbar {
+            position:sticky; top:0; z-index:100;
+            background:#0000FF;
+            border-bottom:4px solid #fff;
+            padding:14px 30px;
+            display:flex; align-items:center; justify-content:space-between;
+        }
+        .admin-topbar h1 { font-size:1.6em; font-weight:bold; color:#fff; }
+        .back-link {
+            color:#fff; text-decoration:none; font-size:1.1em; font-weight:bold;
+            border:2px solid #fff; padding:8px 18px; transition:all .2s;
+        }
+        .back-link:hover { background:#333; }
+
+        .admin-body { max-width:900px; margin:0 auto; padding:30px 24px 60px; }
+
+        .section {
+            background:#0000FF; border:2px solid #fff;
+            margin-bottom:28px; padding:22px;
+        }
+        .section h2 {
+            font-size:1.2em; font-weight:bold; color:#fff;
+            margin-bottom:18px; padding-bottom:10px;
+            border-bottom:2px solid #fff;
+        }
+
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        .form-group { margin-bottom:16px; }
+        .form-group.full { grid-column:1/-1; }
+        .form-group label { display:block; font-size:.95em; color:#fff; margin-bottom:6px; font-weight:bold; }
+        .form-group input, .form-group textarea, .form-group select {
+            width:100%; background:#0000FF; color:#fff;
+            border:2px solid #fff; padding:10px 12px;
+            font-family:'Star3000',monospace; font-size:.95em;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline:none; border-color:#fff;
+        }
+        .form-group textarea { resize:vertical; min-height:80px; }
+
+        .checkbox-label { display:flex; align-items:center; gap:10px; color:#fff; font-size:.95em; cursor:pointer; }
+        .checkbox-label input { width:18px; height:18px; accent-color:#fff; }
+
+        .btn {
+            background:#0000FF; color:#fff; border:2px solid #fff;
+            padding:10px 20px; font-family:'Star3000',monospace;
+            font-size:1em; font-weight:bold; cursor:pointer;
+            margin:4px; transition:all .2s; text-transform:uppercase;
+        }
+        .btn:hover { background:rgba(255,255,255,0.1); }
+        .btn-danger { background:#0000FF; border-color:#fff; color:#fff; }
+        .btn-danger:hover { background:rgba(255,255,255,0.1); }
+        .btn-row { margin-top:6px; }
+
+        .event-item {
+            background:#0000FF; border:2px solid #fff;
+            padding:12px 14px; margin-bottom:8px;
+            display:flex; justify-content:space-between; align-items:center; gap:12px;
+        }
+        .event-item .ev-title { font-size:1em; font-weight:bold; color:#fff; }
+        .event-item .ev-date  { font-size:.85em; color:#fff; margin-top:3px; }
+        .event-item .btn { padding:6px 12px; font-size:.85em; margin:0; }
+
+        .music-item {
+            background:#0000FF; border:2px solid #fff;
+            padding:10px 12px; margin-bottom:6px;
+            display:flex; justify-content:space-between; align-items:center; gap:10px;
+        }
+        .music-item .track-name { font-size:.9em; color:#fff; }
+        .music-item .btn { padding:5px 10px; font-size:.8em; margin:0; }
+
+        .logo-preview { background:#0000FF; border:2px solid #fff; padding:12px; display:inline-block; }
+        .logo-preview img { max-height:60px; max-width:200px; display:block; }
+
+        .network-box {
+            background:#0000FF; border:2px solid #fff;
+            padding:14px; font-size:.9em; line-height:1.8;
+        }
+        .network-box a { color:#fff; text-decoration:none; }
+        .network-box a:hover { text-decoration:underline; }
+        .network-box .label { color:#fff; }
+
+        .toast {
+            position:fixed; top:24px; left:50%; transform:translateX(-50%);
+            background:#0000FF; color:#fff;
+            border:2px solid #fff;
+            padding:12px 28px; z-index:200; font-weight:bold;
+            opacity:0; transition:opacity .3s; pointer-events:none;
+        }
+        .toast.show { opacity:1; }
+    </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="admin-topbar">
+    <h1>⚙ CONTROL PANEL</h1>
+    <a href="/menu" class="back-link">◀ RETURN TO MENU</a>
+</div>
+
+<div class="admin-body">
+
+    <!-- SAVE ALL SETTINGS (TOP) -->
+    <div style="text-align:center;margin-bottom:30px;">
+        <button class="btn" onclick="saveSettings()" style="font-size:1.3em;padding:15px 40px;background:#00ff00;color:#000;font-weight:bold;">
+            💾 SAVE ALL SETTINGS
+        </button>
+    </div>
+
+    <!-- DISPLAY FEATURES -->
+    <div class="section">
+        <h2>📺 DISPLAY FEATURES</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="eventsEnabled">
+                    Enable events display
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="weatherEnabled">
+                    Enable weather display
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="announcementsEnabled">
+                    Enable announcements display
+                </label>
+            </div>
+            <div class="form-group full">
+                <label>Event Border Thickness (1-10 pixels)</label>
+                <input type="number" id="eventBorderThickness" min="1" max="10" value="2">
+            </div>
+        </div>
+        <p style="color:#fff;font-size:.85em;margin-top:8px;margin-bottom:12px;opacity:0.8;">
+            Manage events at <a href="/events" style="color:#fff;text-decoration:underline;">/events</a> • 
+            Manage weather at <a href="/weather-manager" style="color:#fff;text-decoration:underline;">/weather-manager</a> • 
+            Manage announcements at <a href="/announcements" style="color:#fff;text-decoration:underline;">/announcements</a>
+        </p>
+        <div class="btn-row">
+            <button class="btn" onclick="saveSettings()">💾 SAVE DISPLAY FEATURES</button>
+        </div>
+    </div>
+
+    <!-- ROTATION SETTINGS -->
+    <div class="section">
+        <h2>🔄 ROTATION SETTINGS</h2>
+        <p style="color:#fff;font-size:.95em;margin-bottom:12px;">
+            Configure how often to cycle between events, weather, and announcements.
+        </p>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Event Cycles</label>
+                <input type="number" id="eventCycles" min="1" max="99" value="3">
+            </div>
+            <div class="form-group">
+                <label>Weather Cycles</label>
+                <input type="number" id="weatherCycles" min="1" max="99" value="2">
+            </div>
+            <div class="form-group">
+                <label>Announcement Cycles</label>
+                <input type="number" id="announcementCycles" min="1" max="99" value="2">
+            </div>
+            <div class="form-group">
+                <label>Event Auto-Scroll Speed (0-99)</label>
+                <input type="number" id="scrollSpeed" min="0" max="99" value="3">
+            </div>
+            <div class="form-group">
+                <label>Announcement Scroll Speed (1-99)</label>
+                <input type="number" id="announcementScrollSpeed" min="1" max="99" value="3">
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="saveSettings()">💾 SAVE ROTATION SETTINGS</button>
+        </div>
+    </div>
+
+    <!-- ANNOUNCEMENT DISCLAIMER -->
+    <div class="section">
+        <h2>📋 ANNOUNCEMENT DISCLAIMER</h2>
+        <p style="color:#fff;font-size:.9em;margin-bottom:12px;">
+            Optional disclaimer text displayed for sponsored announcements.
+        </p>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="disclaimerEnabled">
+                Enable disclaimer on sponsored announcements
+            </label>
+        </div>
+        <div class="form-row">
+            <div class="form-group full">
+                <label>Disclaimer Text</label>
+                <input type="text" id="disclaimerText" value="This message provided as a public service by your local cable access channel.">
+            </div>
+            <div class="form-group">
+                <label>Disclaimer Color</label>
+                <select id="disclaimerColor">
+                    <option value="#ffffff" selected>White</option>
+                    <option value="#ffd700">Gold</option>
+                    <option value="#ff0000">Red</option>
+                    <option value="#00ff00">Green</option>
+                    <option value="#0000FF">Blue</option>
+                    <option value="#00ffff">Cyan</option>
+                    <option value="#ffaa00">Orange</option>
+                    <option value="#cccccc">Light Gray</option>
+                </select>
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="saveSettings()">💾 SAVE DISCLAIMER</button>
+        </div>
+    </div>
+
+    <!-- DISPLAY NAMES -->
+    <div class="section">
+        <h2>📛 DISPLAY NAMES</h2>
+        <p style="color:#fff;font-size:.95em;margin-bottom:12px;">
+            Text shown below the channel name when displaying events vs announcements.
+        </p>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Events Display Name</label>
+                <input type="text" id="eventsDisplayName" placeholder="Community Calendar">
+            </div>
+            <div class="form-group">
+                <label>Announcements Display Name</label>
+                <input type="text" id="announcementsDisplayName" placeholder="Community Announcements">
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="saveSettings()">💾 SAVE DISPLAY NAMES</button>
+        </div>
+    </div>
+
+    <!-- CHANNEL LOGO -->
+    <div class="section">
+        <h2>🖼️ CHANNEL LOGO</h2>
+        <p style="color:#fff;font-size:.9em;margin-bottom:12px;">
+            Upload a logo to replace the channel number. Leave blank to show channel number.
+        </p>
+        <div id="currentLogo" style="margin-bottom:12px;"></div>
+        <div class="form-group">
+            <label>Upload Logo (PNG, JPG, SVG)</label>
+            <input type="file" id="logoUpload" accept="image/*" style="background:#000;color:#fff;border:2px solid #fff;padding:8px;">
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="uploadLogo()">⬆️ UPLOAD LOGO</button>
+            <button class="btn btn-danger" onclick="removeLogo()">✖ REMOVE LOGO</button>
+        </div>
+    </div>
+
+    <!-- DISPLAY COLORS -->
+    <div class="section">
+        <h2>🎨 DISPLAY COLORS</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Background Color</label>
+                <select id="customBgColor" onchange="previewColors()">
+                    <option value="#000814">Black</option>
+                    <option value="#1a1a1a">Dark Gray</option>
+                    <option value="#0f1d2e">Dark Blue</option>
+                    <option value="#0000FF" selected>Blue</option>
+                    <option value="#1a0f00">Dark Brown</option>
+                    <option value="#001a00">Dark Green</option>
+                    <option value="#1a0000">Dark Red</option>
+                    <option value="#001a1a">Dark Teal</option>
+                    <option value="#2a2a2a">Medium Gray</option>
+                    <option value="#ffffff">White</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Accent Color (highlights)</label>
+                <select id="customAccentColor" onchange="previewColors()">
+                    <option value="#ffd700">Gold</option>
+                    <option value="#00ff00">Lime Green</option>
+                    <option value="#ffaa00">Orange</option>
+                    <option value="#ff0000" selected>Red</option>
+                    <option value="#0000FF">Blue</option>
+                    <option value="#00ffff">Cyan</option>
+                    <option value="#ff00ff">Magenta</option>
+                    <option value="#0066cc">Dark Blue</option>
+                    <option value="#ffff00">Yellow</option>
+                    <option value="#ffffff">White</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Text Color</label>
+                <select id="customTextColor" onchange="previewColors()">
+                    <option value="#ffffff" selected>White</option>
+                    <option value="#000000">Black</option>
+                    <option value="#cccccc">Light Gray</option>
+                    <option value="#999999">Medium Gray</option>
+                    <option value="#00ff00">Green</option>
+                    <option value="#0000FF">Blue</option>
+                    <option value="#ffaa00">Orange</option>
+                    <option value="#00ffff">Cyan</option>
+                    <option value="#ffcccc">Light Pink</option>
+                </select>
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="saveSettings()">💾 SAVE COLORS</button>
+        </div>
+    </div>
+
+    <!-- TICKER MESSAGE SETTINGS -->
+    <div class="section">
+        <h2>📜 TICKER MESSAGES</h2>
+        
+        <h3 style="color:#fff;font-size:1.1em;margin-bottom:12px;margin-top:10px;">Events Ticker</h3>
+        <div class="form-row">
+            <div class="form-group full">
+                <label>Events Ticker Text</label>
+                <input type="text" id="tickerInput" value="">
+            </div>
+        </div>
+        
+        <h3 style="color:#fff;font-size:1.1em;margin-bottom:12px;margin-top:20px;padding-top:15px;border-top:2px solid #fff;">Weather Ticker</h3>
+        <div class="form-row">
+            <div class="form-group full">
+                <label>Weather Ticker Text</label>
+                <input type="text" id="weatherTickerText" value="">
+            </div>
+        </div>
+        
+        <h3 style="color:#fff;font-size:1.1em;margin-bottom:12px;margin-top:20px;padding-top:15px;border-top:2px solid #fff;">Announcements Ticker</h3>
+        <div class="form-row">
+            <div class="form-group full">
+                <label>Announcements Ticker Text</label>
+                <input type="text" id="announcementTickerText" value="">
+            </div>
+        </div>
+        
+        <h3 style="color:#fff;font-size:1.1em;margin-bottom:12px;margin-top:20px;padding-top:15px;border-top:2px solid #fff;">Ticker Appearance</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Ticker Background Color</label>
+                <select id="tickerBgColor">
+                    <option value="#0f1d2e">Dark Blue</option>
+                    <option value="#000000">Black</option>
+                    <option value="#1a1a1a">Dark Gray</option>
+                    <option value="#0000FF">Blue</option>
+                    <option value="#001a00">Dark Green</option>
+                    <option value="#1a0000">Dark Red</option>
+                    <option value="#2a2a2a">Medium Gray</option>
+                    <option value="#ffffff" selected>White</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Ticker Text Color</label>
+                <select id="tickerTextColor">
+                    <option value="#ffd700">Gold</option>
+                    <option value="#ffffff">White</option>
+                    <option value="#0000FF" selected>Blue</option>
+                    <option value="#00ff00">Green</option>
+                    <option value="#00ffff">Cyan</option>
+                    <option value="#ffaa00">Orange</option>
+                    <option value="#ffff00">Yellow</option>
+                    <option value="#000000">Black</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Ticker Scroll Speed (1-99)</label>
+                <input type="number" id="tickerSpeed" min="1" max="99" value="5">
+            </div>
+        </div>
+        
+        <div class="btn-row">
+            <button class="btn" onclick="saveSettings()">💾 SAVE TICKER SETTINGS</button>
+        </div>
+    </div>
+
+    <!-- DISPLAY SETTINGS -->
+    <div class="section">
+        <h2>⚙ DISPLAY SETTINGS</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Channel Number</label>
+                <input type="text" id="channelNumberInput" value="17">
+            </div>
+            <div class="form-group">
+                <label>Channel Name</label>
+                <input type="text" id="channelNameInput" value="KCAT-17 COMMUNITY ACCESS">
+            </div>
+            <div class="form-group">
+                <label>Display Brightness (0-100%)</label>
+                <input type="range" id="displayBrightness" min="0" max="100" value="100" 
+                       oninput="document.getElementById('brightnessValue').textContent = this.value + '%'">
+                <span id="brightnessValue" style="color:#fff;font-weight:bold;margin-left:10px;">100%</span>
+            </div>
+            <div class="form-group" style="display:flex;align-items:flex-end;">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="autoStart">
+                    Auto-start fullscreen on load
+                </label>
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="saveSettings()">💾 SAVE DISPLAY SETTINGS</button>
+        </div>
+    </div>
+
+    <!-- SCREEN MARGINS -->
+    <div class="section">
+        <h2>📐 SCREEN MARGINS (pixels)</h2>
+        <p style="color:#fff;font-size:.9em;margin-bottom:12px;">
+            Add buffer space to better fit content on your screen.
+        </p>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Top Margin</label>
+                <input type="number" id="marginTop" min="0" max="200" value="0">
+            </div>
+            <div class="form-group">
+                <label>Bottom Margin</label>
+                <input type="number" id="marginBottom" min="0" max="200" value="0">
+            </div>
+            <div class="form-group">
+                <label>Left Margin</label>
+                <input type="number" id="marginLeft" min="0" max="200" value="0">
+            </div>
+            <div class="form-group">
+                <label>Right Margin</label>
+                <input type="number" id="marginRight" min="0" max="200" value="0">
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="saveSettings()">💾 SAVE MARGINS</button>
+        </div>
+    </div>
+
+    <!-- BACKGROUND MUSIC (EVENTS) -->
+    <div class="section">
+        <h2>🎵 BACKGROUND MUSIC (EVENTS)</h2>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="musicEnabled">
+                Enable background music during events
+            </label>
+        </div>
+        <div class="form-group">
+            <label>Upload Music Files (MP3)</label>
+            <input type="file" id="musicUpload" accept=".mp3" multiple style="background:#000;color:#fff;border:2px solid #fff;padding:8px;">
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="uploadMusic()">⬆️ UPLOAD FILES</button>
+            <button class="btn" onclick="saveMusicSettings()">💾 SAVE MUSIC</button>
+        </div>
+        <div style="margin-top:18px;">
+            <label style="display:block;font-size:.95em;color:#fff;margin-bottom:10px;font-weight:bold;">Current Playlist:</label>
+            <div id="playlistContainer"></div>
+        </div>
+    </div>
+
+    <!-- ANNOUNCEMENT MUSIC -->
+    <div class="section">
+        <h2>🎶 ANNOUNCEMENT MUSIC</h2>
+        <p style="color:#fff;font-size:.9em;margin-bottom:12px;">
+            Separate music playlist for announcements (plays instead of event music).
+        </p>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="announcementMusicEnabled">
+                Enable background music during announcements
+            </label>
+        </div>
+        <div class="form-group">
+            <label>Upload Announcement Music (MP3)</label>
+            <input type="file" id="announcementMusicUpload" accept=".mp3" multiple style="background:#000;color:#fff;border:2px solid #fff;padding:8px;">
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="uploadAnnouncementMusic()">⬆️ UPLOAD FILES</button>
+            <button class="btn" onclick="saveSettings()">💾 SAVE MUSIC</button>
+        </div>
+        <div style="margin-top:18px;">
+            <label style="display:block;font-size:.95em;color:#fff;margin-bottom:10px;font-weight:bold;">Announcement Playlist:</label>
+            <div id="announcementPlaylistContainer"></div>
+        </div>
+    </div>
+
+    <!-- WEATHER MUSIC -->
+    <div class="section">
+        <h2>🎶 WEATHER MUSIC</h2>
+        <p style="color:#fff;font-size:.9em;margin-bottom:12px;">
+            Separate music playlist for weather displays.
+        </p>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="weatherMusicEnabled">
+                Enable background music during weather displays
+            </label>
+        </div>
+        <div class="form-group">
+            <label>Upload Weather Music (MP3)</label>
+            <input type="file" id="weatherMusicUpload" accept=".mp3" multiple style="background:#0000FF;color:#fff;border:2px solid #fff;padding:8px;">
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="uploadWeatherMusic()">⬆️ UPLOAD FILES</button>
+            <button class="btn" onclick="saveSettings()">💾 SAVE MUSIC</button>
+        </div>
+        <div style="margin-top:18px;">
+            <label style="display:block;font-size:.95em;color:#fff;margin-bottom:10px;font-weight:bold;">Weather Playlist:</label>
+            <div id="weatherPlaylistContainer"></div>
+        </div>
+    </div>
+
+    <!-- MASTER MUSIC -->
+    <div class="section">
+        <h2>🎵 MASTER BACKGROUND MUSIC</h2>
+        <p style="color:#fff;font-size:.9em;margin-bottom:12px;">
+            Master playlist plays continuously through ALL modes without stopping. When enabled, overrides individual mode music.
+        </p>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="masterMusicEnabled">
+                Enable master background music (continuous playback)
+            </label>
+        </div>
+        <div class="form-group">
+            <label>Upload Master Music (MP3)</label>
+            <input type="file" id="masterMusicUpload" accept=".mp3" multiple style="background:#0000FF;color:#fff;border:2px solid #fff;padding:8px;">
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="uploadMasterMusic()">⬆️ UPLOAD FILES</button>
+            <button class="btn" onclick="saveSettings()">💾 SAVE MUSIC</button>
+        </div>
+        <div style="margin-top:18px;">
+            <label style="display:block;font-size:.95em;color:#fff;margin-bottom:10px;font-weight:bold;">Master Playlist:</label>
+            <div id="masterPlaylistContainer"></div>
+        </div>
+    </div>
+
+    <!-- FEATURE DISPLAY ORDER -->
+    <div class="section">
+        <h2>🔄 FEATURE DISPLAY ORDER</h2>
+        <p style="color:#fff;font-size:.9em;margin-bottom:12px;">
+            Configure the order in which features are displayed. You can add features multiple times for custom sequences.
+        </p>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Add Feature to Sequence:</label>
+                <select id="featureToAdd" style="background:#0000FF;color:#fff;border:2px solid #fff;padding:10px;font-family:'Star3000',monospace;">
+                    <option value="events">Events</option>
+                    <option value="weather">Weather</option>
+                    <option value="announcements">Announcements</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>&nbsp;</label>
+                <button class="btn" onclick="addFeatureToOrder()" style="width:100%;">➕ ADD TO SEQUENCE</button>
+            </div>
+        </div>
+        <div style="margin-top:18px;">
+            <label style="display:block;font-size:.95em;color:#fff;margin-bottom:10px;font-weight:bold;">Current Display Sequence:</label>
+            <div id="displayOrderContainer"></div>
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="resetDisplayOrder()">🔄 RESET TO DEFAULT</button>
+            <button class="btn" onclick="saveSettings()">💾 SAVE ORDER</button>
+        </div>
+    </div>
+
+    <!-- IMPORT / EXPORT -->
+    <div class="section">
+        <h2>📦 IMPORT / EXPORT</h2>
+        <div class="btn-row">
+            <button class="btn" onclick="exportData()">💾 EXPORT JSON</button>
+            <button class="btn" onclick="downloadCSV()">📊 DOWNLOAD CSV</button>
+            <button class="btn" onclick="importData()">📂 IMPORT JSON</button>
+        </div>
+    </div>
+
+    <!-- NETWORK INFO -->
+    <div class="section">
+        <h2>🌐 NETWORK ACCESS</h2>
+        <div class="network-box" id="networkInfo">Loading…</div>
+    </div>
+
+    <!-- BACKUP & RESTORE -->
+    <div class="section">
+        <h2>💾 BACKUP & RESTORE</h2>
+        <div class="info-box" style="margin-bottom:20px;">
+            Create complete backups including all settings, events, announcements, and uploaded assets (logo, music).
+            Restore from backup to quickly recover or transfer your configuration.
+        </div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;">
+            <!-- Backup -->
+            <div style="background:rgba(255,255,255,0.1);padding:20px;border:2px solid #fff;border-radius:5px;">
+                <h3 style="color:#ffff00;margin-bottom:15px;font-size:1.1em;">📦 Create Backup</h3>
+                <p style="color:#fff;margin-bottom:15px;font-size:0.9em;">
+                    Downloads a complete backup file (.zip) containing:
+                </p>
+                <ul style="color:#fff;margin-bottom:15px;font-size:0.85em;margin-left:20px;">
+                    <li>All settings</li>
+                    <li>Events data</li>
+                    <li>Announcements data</li>
+                    <li>Uploaded logo</li>
+                    <li>Music playlists</li>
+                </ul>
+                <button class="btn" onclick="createBackup()" style="width:100%;padding:12px;background:#00ff00;color:#000;font-weight:bold;">
+                    📦 CREATE BACKUP
+                </button>
+            </div>
+            
+            <!-- Restore -->
+            <div style="background:rgba(255,255,255,0.1);padding:20px;border:2px solid #fff;border-radius:5px;">
+                <h3 style="color:#ff9900;margin-bottom:15px;font-size:1.1em;">⚠️ Restore from Backup</h3>
+                <p style="color:#fff;margin-bottom:15px;font-size:0.9em;">
+                    Upload a backup file to restore:
+                </p>
+                <input type="file" id="backupFile" accept=".zip" style="display:none;" onchange="handleBackupFileSelect(event)">
+                <button class="btn" onclick="document.getElementById('backupFile').click()" style="width:100%;padding:12px;margin-bottom:10px;">
+                    📂 SELECT BACKUP FILE
+                </button>
+                <div id="backupFileName" style="color:#ffff00;margin-bottom:10px;font-size:0.9em;min-height:20px;"></div>
+                <button class="btn" id="restoreBtn" onclick="confirmRestore()" disabled style="width:100%;padding:12px;background:#ff0000;color:#fff;font-weight:bold;opacity:0.5;">
+                    ⚠️ RESTORE BACKUP
+                </button>
+                <p style="color:#ff0000;margin-top:10px;font-size:0.75em;">
+                    ⚠️ Warning: This will replace all current data!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAVE ALL SETTINGS (BOTTOM) -->
+    <div style="text-align:center;margin-top:30px;margin-bottom:30px;">
+        <button class="btn" onclick="saveSettings()" style="font-size:1.3em;padding:15px 40px;background:#00ff00;color:#000;font-weight:bold;">
+            💾 SAVE ALL SETTINGS
+        </button>
+    </div>
+
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

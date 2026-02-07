@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Display — CAT-STAR 2000</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <link rel="shortcut icon" href="/favicon/favicon.ico">
+    <style>
+        @font-face { font-family:'Star3000'; src:url('fonts/Star3000.ttf') format('truetype'); }
+        @font-face { font-family:'Star3000Large'; src:url('fonts/Star3000_Large.ttf') format('truetype'); }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family:'Star3000',monospace;
+            background:#000;
+            color:#fff;
+            overflow:hidden;
+            margin:0;
+            padding:0;
+        }
+
+        /* WeatherSTAR 4000 Container */
+        #weatherContainer {
+            width:100vw;
+            height:100vh;
+            background:linear-gradient(to bottom, #001040 0%, #000820 100%);
+            display:flex;
+            flex-direction:column;
+            position:relative;
+        }
+
+        /* Header - Orange Gradient */
+        .ws-header {
+            background:linear-gradient(to bottom, #e87000 0%, #ff9f40 100%);
+            padding:8px 20px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            border-bottom:3px solid #ff9f40;
+        }
+
+        .ws-logo {
+            background:#0033cc;
+            color:#fff;
+            padding:4px 12px;
+            border:2px solid #fff;
+            font-size:0.9em;
+            font-weight:bold;
+            border-radius:3px;
+        }
+
+        .ws-title {
+            font-family:'Star3000Large',monospace;
+            font-size:2.5em;
+            color:#fff;
+            text-shadow:2px 2px 0 #000;
+            font-weight:bold;
+        }
+
+        .ws-datetime {
+            font-size:1.1em;
+            color:#fff;
+            text-align:right;
+            line-height:1.3;
+        }
+
+        /* Main Content Area */
+        .ws-content {
+            flex:1;
+            padding:30px 40px;
+            position:relative;
+            overflow:hidden;
+        }
+
+        /* Ticker - Bottom Bar */
+        .ws-ticker {
+            background:#001060;
+            color:#fff;
+            padding:12px 0;
+            overflow:hidden;
+            white-space:nowrap;
+            border-top:3px solid #0033cc;
+        }
+
+        .ws-ticker-text {
+            display:inline-block;
+            padding-left:100%;
+            animation:tickerScroll 30s linear infinite;
+            font-size:1.2em;
+        }
+
+        @keyframes tickerScroll {
+            0% { transform:translateX(0); }
+            100% { transform:translateX(-100%); }
+        }
+
+        /* Screen Styles */
+        .weather-screen {
+            width:100%;
+            height:100%;
+            display:none;
+            color:#fff;
+        }
+
+        .weather-screen.active {
+            display:block;
+        }
+
+        /* Current Conditions */
+        #currentConditions {
+            display:grid;
+            grid-template-columns:300px 1fr;
+            gap:40px;
+            height:100%;
+        }
+
+        .current-left {
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            align-items:center;
+        }
+
+        .current-temp {
+            font-size:8em;
+            font-weight:bold;
+            color:#fff;
+            line-height:1;
+        }
+
+        .current-condition {
+            font-size:2.5em;
+            color:#ffff00;
+            margin-top:20px;
+        }
+
+        .current-icon {
+            width:150px;
+            height:150px;
+            margin:20px 0;
+        }
+
+        .current-wind {
+            font-size:2em;
+            color:#fff;
+            margin-top:10px;
+        }
+
+        .current-right {
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+        }
+
+        .current-city {
+            font-size:3em;
+            color:#ffff00;
+            font-weight:bold;
+            margin-bottom:30px;
+        }
+
+        .current-details {
+            font-size:1.8em;
+            line-height:1.8;
+            color:#fff;
+        }
+
+        .detail-label {
+            color:#ffff00;
+            display:inline-block;
+            width:180px;
+        }
+
+        /* Extended Forecast */
+        #extendedForecast {
+            display:flex;
+            gap:30px;
+            justify-content:center;
+            align-items:center;
+            height:100%;
+        }
+
+        .forecast-day {
+            background:rgba(0,50,150,0.4);
+            border:3px solid #0066ff;
+            padding:30px 20px;
+            text-align:center;
+            min-width:200px;
+        }
+
+        .forecast-day-name {
+            font-size:2.5em;
+            color:#ffff00;
+            font-weight:bold;
+            margin-bottom:15px;
+        }
+
+        .forecast-icon {
+            width:120px;
+            height:120px;
+            margin:20px auto;
+        }
+
+        .forecast-condition {
+            font-size:1.8em;
+            color:#fff;
+            margin:15px 0;
+        }
+
+        .forecast-temps {
+            font-size:2em;
+            color:#fff;
+            margin-top:20px;
+        }
+
+        .forecast-lo {
+            color:#00ffff;
+            font-weight:bold;
+        }
+
+        .forecast-hi {
+            color:#ff6666;
+            font-weight:bold;
+        }
+
+        /* Hourly Forecast */
+        #hourlyForecast {
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            height:100%;
+        }
+
+        .hourly-table {
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        .hourly-table th {
+            background:#0033cc;
+            color:#ffff00;
+            padding:15px;
+            font-size:1.5em;
+            border:2px solid #fff;
+        }
+
+        .hourly-table td {
+            padding:15px;
+            font-size:1.6em;
+            color:#fff;
+            border:2px solid #0066ff;
+            text-align:center;
+        }
+
+        .hourly-time {
+            color:#ffff00;
+            font-weight:bold;
+        }
+
+        /* Latest Observations */
+        #latestObservations {
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            height:100%;
+        }
+
+        .obs-table {
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        .obs-table th {
+            background:#0033cc;
+            color:#ffff00;
+            padding:12px;
+            font-size:1.4em;
+            border:2px solid #fff;
+        }
+
+        .obs-table td {
+            padding:12px;
+            font-size:1.5em;
+            color:#fff;
+            border:2px solid #0066ff;
+        }
+
+        .obs-city {
+            color:#ffff00;
+            font-weight:bold;
+        }
+
+        /* Local Forecast */
+        #localForecast {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            height:100%;
+            padding:40px;
+        }
+
+        .forecast-text {
+            font-size:2em;
+            line-height:1.8;
+            color:#fff;
+            max-width:90%;
+        }
+
+        /* Almanac */
+        #almanac {
+            display:grid;
+            grid-template-rows:auto 1fr;
+            gap:30px;
+            height:100%;
+        }
+
+        .almanac-sun {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:40px;
+            font-size:1.8em;
+        }
+
+        .almanac-day {
+            background:rgba(0,50,150,0.4);
+            border:3px solid #0066ff;
+            padding:20px;
+        }
+
+        .almanac-day-name {
+            color:#ffff00;
+            font-size:1.5em;
+            font-weight:bold;
+            margin-bottom:15px;
+        }
+
+        .almanac-time {
+            color:#fff;
+            line-height:1.6;
+        }
+
+        .almanac-moon {
+            margin-top:20px;
+        }
+
+        .almanac-moon-title {
+            color:#ffff00;
+            font-size:2em;
+            font-weight:bold;
+            margin-bottom:20px;
+        }
+
+        .moon-phases {
+            display:grid;
+            grid-template-columns:repeat(4, 1fr);
+            gap:20px;
+        }
+
+        .moon-phase {
+            text-align:center;
+        }
+
+        .moon-phase-icon {
+            width:80px;
+            height:80px;
+            margin:0 auto 10px;
+        }
+
+        .moon-phase-name {
+            color:#ffff00;
+            font-size:1.3em;
+            margin:8px 0;
+        }
+
+        .moon-phase-date {
+            color:#fff;
+            font-size:1.2em;
+        }
+
+        /* Travel Forecast */
+        #travelForecast {
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            gap:15px;
+            height:100%;
+        }
+
+        .travel-title {
+            color:#ffff00;
+            font-size:2em;
+            font-weight:bold;
+            margin-bottom:20px;
+        }
+
+        .travel-city {
+            display:grid;
+            grid-template-columns:300px 100px 150px 150px;
+            align-items:center;
+            padding:15px;
+            background:rgba(0,50,150,0.3);
+            border:2px solid #0066ff;
+            gap:20px;
+        }
+
+        .travel-city-name {
+            color:#ffff00;
+            font-size:2em;
+            font-weight:bold;
+        }
+
+        .travel-icon {
+            width:60px;
+            height:60px;
+        }
+
+        .travel-temps {
+            font-size:1.8em;
+            color:#fff;
+        }
+
+        /* Radar */
+        #radar {
+            display:flex;
+            flex-direction:column;
+            height:100%;
+        }
+
+        .radar-legend {
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin-bottom:20px;
+            font-size:1.2em;
+        }
+
+        .radar-legend-label {
+            color:#ffff00;
+            font-weight:bold;
+        }
+
+        .radar-legend-bar {
+            display:flex;
+            height:25px;
+        }
+
+        .radar-map {
+            flex:1;
+            background:#333;
+            border:3px solid #0066ff;
+            position:relative;
+            overflow:hidden;
+        }
+
+        .radar-image {
+            width:100%;
+            height:100%;
+            object-fit:contain;
+        }
+
+        .radar-time {
+            position:absolute;
+            top:10px;
+            right:10px;
+            background:rgba(0,0,0,0.7);
+            padding:8px 15px;
+            color:#fff;
+            font-size:1.2em;
+        }
+
+        /* Regional Observations */
+        #regionalObservations {
+            position:relative;
+            height:100%;
+        }
+
+        .regional-map {
+            width:100%;
+            height:100%;
+            position:relative;
+        }
+
+        .regional-city {
+            position:absolute;
+            text-align:center;
+        }
+
+        .regional-temp {
+            font-size:2em;
+            color:#ffff00;
+            font-weight:bold;
+        }
+
+        .regional-icon {
+            width:50px;
+            height:50px;
+            margin:5px auto;
+        }
+
+        .regional-name {
+            font-size:1.2em;
+            color:#fff;
+        }
+
+        /* Loading */
+        .loading {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            height:100%;
+            font-size:3em;
+            color:#ffff00;
+        }
+    </style>
+</head>
+<body>
+
+<div id="weatherContainer">
+    <!-- Header -->
+    <div class="ws-header">
+        <div class="ws-logo">CAT-STAR<br>WEATHER</div>
+        <div class="ws-title" id="screenTitle">Current Conditions</div>
+        <div class="ws-datetime" id="datetime"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ws-content" id="wsContent">
+        <div class="loading">Loading Weather Data...</div>
+    </div>
+
+    <!-- Ticker -->
+    <div class="ws-ticker">
+        <div class="ws-ticker-text" id="tickerText"></div>
+    </div>
+</div>
+
+<audio id="bgMusic" loop></audio>
+
+<script src="weather-enhanced.js"></script>
+</body>
+</html>

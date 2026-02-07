@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Configuration — CAT-STAR 2000</title>
+    <style>
+        @font-face { font-family:'Star3000'; src:url('fonts/Star3000.ttf') format('truetype'); font-weight:normal; }
+        @font-face { font-family:'Star3000'; src:url('fonts/Star3000_Heavy.ttf') format('truetype'); font-weight:bold; }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family:'Star3000',monospace;
+            background:#0000FF;
+            color:#fff;
+            min-height:100vh;
+        }
+
+        .topbar {
+            position:sticky; top:0; z-index:100;
+            background:#0000FF;
+            border-bottom:4px solid #fff;
+            padding:14px 30px;
+            display:flex; align-items:center; justify-content:space-between;
+        }
+        .topbar h1 { font-size:1.6em; font-weight:bold; color:#fff; }
+        .back-link {
+            color:#fff; text-decoration:none; font-size:1.1em; font-weight:bold;
+            border:2px solid #fff; padding:8px 18px; transition:all .2s;
+        }
+        .back-link:hover { background:rgba(255,255,255,0.1); }
+
+        .page-body { max-width:1000px; margin:0 auto; padding:30px 24px 60px; }
+
+        .section {
+            background:#0000FF; border:2px solid #fff;
+            margin-bottom:28px; padding:22px;
+        }
+        .section h2 {
+            font-size:1.2em; font-weight:bold; color:#fff;
+            margin-bottom:18px; padding-bottom:10px;
+            border-bottom:2px solid #fff;
+        }
+
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        .form-group { margin-bottom:16px; }
+        .form-group.full { grid-column:1/-1; }
+        .form-group label { display:block; font-size:.95em; color:#fff; margin-bottom:6px; font-weight:bold; }
+        .form-group input, .form-group select {
+            width:100%; background:#0000FF; color:#fff;
+            border:2px solid #fff; padding:10px 12px;
+            font-family:'Star3000',monospace; font-size:.95em;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline:none; border-color:#fff;
+        }
+
+        .checkbox-label {
+            display:flex; align-items:center; gap:10px;
+            color:#fff; font-weight:bold; cursor:pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            width:20px; height:20px; cursor:pointer;
+        }
+
+        .btn {
+            background:#0000FF; color:#fff; border:2px solid #fff;
+            padding:10px 20px; font-family:'Star3000',monospace;
+            font-size:1em; font-weight:bold; cursor:pointer;
+            margin:4px; transition:all .2s; text-transform:uppercase;
+        }
+        .btn:hover { background:rgba(255,255,255,0.1); }
+        .btn-row { margin-top:6px; }
+
+        .info-box {
+            background:rgba(255,255,255,0.1);
+            border:2px solid #fff;
+            padding:14px;
+            margin-top:10px;
+            font-size:.9em;
+            line-height:1.6;
+        }
+
+        .toast {
+            position:fixed; top:24px; left:50%; transform:translateX(-50%);
+            background:#0000FF; color:#fff;
+            border:2px solid #fff;
+            padding:12px 28px; z-index:200; font-weight:bold;
+            opacity:0; transition:opacity .3s; pointer-events:none;
+        }
+        .toast.show { opacity:1; }
+    </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="topbar">
+    <h1>🌤️ WEATHER CONFIGURATION</h1>
+    <a href="/menu" class="back-link">◀ RETURN TO MENU</a>
+</div>
+
+<div class="page-body">
+
+    <!-- SAVE ALL SETTINGS (TOP) -->
+    <div style="text-align:center;margin-bottom:30px;">
+        <button class="btn" onclick="saveWeatherSettings()" style="font-size:1.3em;padding:15px 40px;background:#00ff00;color:#000;font-weight:bold;">
+            💾 SAVE ALL WEATHER SETTINGS
+        </button>
+    </div>
+
+    <!-- LOCATION SETTINGS -->
+    <div class="section">
+        <h2>📍 LOCATION</h2>
+        
+        <!-- Zip Code Search -->
+        <div style="background:rgba(255,255,255,0.1);border:2px solid #fff;padding:20px;margin-bottom:20px;border-radius:5px;">
+            <label style="display:block;font-size:1.1em;color:#fff;margin-bottom:10px;font-weight:bold;">🔍 Search by Zip Code:</label>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>5-Digit Zip Code</label>
+                    <input type="text" id="zipCode" maxlength="5" pattern="[0-9]{5}" placeholder="65201" style="background:#0000FF;color:#fff;border:2px solid #fff;padding:12px;font-family:'Star3000',monospace;font-size:1.1em;">
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="btn" onclick="lookupZipCode()" style="width:100%;padding:12px;">🔍 LOOKUP LOCATION</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Manual Entry -->
+        <div style="margin-top:20px;">
+            <label style="display:block;font-size:1.1em;color:#fff;margin-bottom:10px;font-weight:bold;">Or enter manually:</label>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Latitude</label>
+                <input type="number" step="0.0001" id="weatherLat" placeholder="38.9517">
+            </div>
+            <div class="form-group">
+                <label>Longitude</label>
+                <input type="number" step="0.0001" id="weatherLon" placeholder="-92.3341">
+            </div>
+            <div class="form-group">
+                <label>City Name (for display)</label>
+                <input type="text" id="cityName" placeholder="Columbia">
+            </div>
+            <div class="form-group">
+                <label>Observation Station Name</label>
+                <input type="text" id="stationName" placeholder="Columbia Regional">
+            </div>
+        </div>
+        <div class="info-box">
+            Use the zip code search above for automatic lookup, or enter coordinates manually.
+            Default location: Columbia, Missouri (65201)
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="testLocation()">🧪 TEST LOCATION</button>
+            <button class="btn" onclick="saveWeatherSettings()">💾 SAVE LOCATION</button>
+        </div>
+    </div>
+
+    <!-- WEATHER SCREENS -->
+    <div class="section">
+        <h2>📺 WEATHER SCREENS</h2>
+        <p style="color:#fff;font-size:.9em;margin-bottom:12px;">
+            Select which weather screens to display during the weather cycle.
+        </p>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="showCurrentConditions" checked>
+                Current Conditions (temperature, humidity, wind, pressure)
+            </label>
+        </div>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="showRegionalObs" checked>
+                Regional Observations (multi-city temperatures)
+            </label>
+        </div>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="showAlmanac" checked>
+                Almanac (sunrise/sunset, moon phases, pressure)
+            </label>
+        </div>
+        <div class="form-row" style="margin-top:16px;">
+            <div class="form-group">
+                <label>Screen Duration (seconds)</label>
+                <input type="number" id="screenDuration" min="5" max="30" value="8">
+            </div>
+            <div class="form-group">
+                <label>Data Refresh Interval (minutes)</label>
+                <input type="number" id="refreshInterval" min="5" max="60" value="10">
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="saveWeatherSettings()">💾 SAVE SCREEN SETTINGS</button>
+        </div>
+    </div>
+
+    <!-- REGIONAL CITIES -->
+    <div class="section">
+        <h2>🗺️ REGIONAL CITIES</h2>
+        <p style="color:#fff;font-size:.9em;margin-bottom:12px;">
+            Configure cities to display on the Regional Observations screen.
+        </p>
+        <div id="regionalCitiesContainer">
+            <!-- Populated by JavaScript -->
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="addRegionalCity()">➕ ADD CITY</button>
+            <button class="btn" onclick="saveWeatherSettings()">💾 SAVE REGIONAL CITIES</button>
+        </div>
+    </div>
+
+    <!-- WEATHER TICKER -->
+    <div class="section">
+        <h2>📜 WEATHER TICKER</h2>
+        <div class="form-group full">
+            <label>Weather Ticker Text</label>
+            <input type="text" id="weatherTickerText" placeholder="★★★ LOCAL WEATHER PROVIDED BY NOAA ★★★">
+        </div>
+        <div class="btn-row">
+            <button class="btn" onclick="saveWeatherSettings()">💾 SAVE TICKER</button>
+        </div>
+    </div>
+
+    <!-- WEATHER SCREEN PLAYLIST -->
+    <div class="section">
+        <h2>📺 WEATHER SCREEN PLAYLIST</h2>
+        <div class="info-box">
+            Configure which weather screens display and in what order.
+            You can add screens multiple times and reorder them.
+        </div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:20px;">
+            <!-- Available Screens -->
+            <div>
+                <h3 style="color:#ffff00;margin-bottom:15px;font-size:1.2em;">Available Screens:</h3>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <button class="btn" onclick="addWeatherScreen('currentConditions')" style="text-align:left;padding:12px;">
+                        ➕ Current Conditions
+                    </button>
+                    <button class="btn" onclick="addWeatherScreen('latestObservations')" style="text-align:left;padding:12px;">
+                        ➕ Latest Observations
+                    </button>
+                    <button class="btn" onclick="addWeatherScreen('extendedForecast')" style="text-align:left;padding:12px;">
+                        ➕ Extended Forecast
+                    </button>
+                    <button class="btn" onclick="addWeatherScreen('hourlyForecast')" style="text-align:left;padding:12px;">
+                        ➕ Hourly Forecast
+                    </button>
+                    <button class="btn" onclick="addWeatherScreen('localForecast')" style="text-align:left;padding:12px;">
+                        ➕ Local Forecast
+                    </button>
+                    <button class="btn" onclick="addWeatherScreen('almanac')" style="text-align:left;padding:12px;">
+                        ➕ Almanac
+                    </button>
+                    <button class="btn" onclick="addWeatherScreen('travelForecast')" style="text-align:left;padding:12px;">
+                        ➕ Travel Forecast
+                    </button>
+                    <button class="btn" onclick="addWeatherScreen('regionalObservations')" style="text-align:left;padding:12px;">
+                        ➕ Regional Observations
+                    </button>
+                    <button class="btn" onclick="addWeatherScreen('radar')" style="text-align:left;padding:12px;">
+                        ➕ Local Radar
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Current Playlist -->
+            <div>
+                <h3 style="color:#ffff00;margin-bottom:15px;font-size:1.2em;">Active Playlist:</h3>
+                <div id="weatherScreensList" style="display:flex;flex-direction:column;gap:8px;min-height:400px;background:rgba(0,0,0,0.3);padding:15px;border-radius:5px;">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="btn-row" style="margin-top:20px;">
+            <button class="btn" onclick="saveWeatherSettings()">💾 SAVE PLAYLIST</button>
+        </div>
+    </div>
+
+    <!-- SAVE ALL SETTINGS (BOTTOM) -->
+    <div style="text-align:center;margin-top:30px;margin-bottom:30px;">
+        <button class="btn" onclick="saveWeatherSettings()" style="font-size:1.3em;padding:15px 40px;background:#00ff00;color:#000;font-weight:bold;">
+            💾 SAVE ALL WEATHER SETTINGS
+        </button>
+    </div>
+
+</div>
+
+<script src="weather-manager.js"></script>
+</body>
+</html>

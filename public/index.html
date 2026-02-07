@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Calendar</title>
+    <style>
+        /* Star 3000 Fonts */
+        @font-face { font-family:'Star3000'; src:url('fonts/Star3000.ttf') format('truetype'); font-weight:normal; }
+        @font-face { font-family:'Star3000'; src:url('fonts/Star3000_Heavy.ttf') format('truetype'); font-weight:bold; }
+        @font-face { font-family:'Star3000Small'; src:url('fonts/Star3000_Small.ttf') format('truetype'); font-weight:normal; }
+        @font-face { font-family:'Star3000Large'; src:url('fonts/Star3000_Large.ttf') format('truetype'); font-weight:normal; }
+        @font-face { font-family:'Star3000Large'; src:url('fonts/Star3000_Large_Heavy.ttf') format('truetype'); font-weight:bold; }
+
+        :root {
+            --bg-main: #0f1d2e;
+            --text-primary: #ffffff;
+            --text-accent: #ffd700;
+            --ticker-bg: #0f1d2e;
+            --ticker-text: #ffd700;
+            --event-border-width: 2px;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family:'Star3000',monospace;
+            background:#000;
+            color:var(--text-primary);
+            overflow:hidden;
+        }
+
+        /* Main container with adjustable margins */
+        .tv-container {
+            position:fixed;
+            background:var(--bg-main);
+            display:flex;
+            flex-direction:column;
+        }
+
+        /* Brightness wrapper */
+        #brightnessWrapper {
+            flex:1;
+            display:flex;
+            flex-direction:column;
+            filter:brightness(100%);
+        }
+
+        /* Top bar */
+        .top-bar {
+            background:var(--bg-main);
+            padding:20px 30px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            border-bottom:3px solid var(--text-accent);
+        }
+        .channel-logo { display:flex; align-items:center; gap:20px; }
+        .channel-logo-img { max-height:70px; max-width:200px; object-fit:contain; }
+        .channel-number { font-family:'Star3000Large',monospace; font-size:3em; font-weight:bold; color:var(--text-accent); }
+        .channel-name { font-family:'Star3000',monospace; font-size:1.8em; font-weight:bold; color:var(--text-primary); }
+        .time-info { text-align:right; }
+        .current-time { font-family:'Star3000Large',monospace; font-size:2.2em; font-weight:bold; color:var(--text-accent); }
+        .current-date { font-family:'Star3000Small',monospace; font-size:1.2em; color:var(--text-primary); margin-top:5px; }
+
+        /* Events area */
+        .events-scroll {
+            flex:1;
+            overflow:hidden;
+            position:relative;
+            padding:20px 0;
+            display:flex;
+            flex-direction:column;
+            justify-content:flex-end;
+        }
+        .events-list { padding:0 30px; }
+
+        .event-row {
+            background:var(--bg-main);
+            border:var(--event-border-width) solid var(--text-accent);
+            margin-bottom:8px;
+            padding:18px 25px;
+            display:grid;
+            grid-template-columns:200px 1fr;
+            gap:25px;
+            align-items:center;
+        }
+        .event-date-col {
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+            text-align:center;
+            padding:12px;
+            border:2px solid var(--text-accent);
+        }
+        .event-date {
+            font-size:1.4em;
+            font-weight:bold;
+            color:var(--text-accent);
+        }
+        .event-time {
+            font-size:1.1em;
+            color:var(--text-accent);
+            font-weight:bold;
+        }
+        .event-location {
+            font-size:1.0em;
+            color:var(--text-primary);
+            font-weight:bold;
+            margin-top:4px;
+        }
+        .event-info-col { display:flex; flex-direction:column; gap:8px; }
+        .event-title { font-size:1.6em; font-weight:bold; color:var(--text-primary); text-transform:uppercase; }
+        .event-description { font-size:1.1em; color:var(--text-primary); opacity:0.85; line-height:1.4; }
+
+        /* Bottom ticker - fixed at absolute bottom */
+        .bottom-bar {
+            background:var(--ticker-bg, var(--bg-main));
+            height:60px;
+            border-top:3px solid var(--text-accent);
+            display:flex;
+            align-items:center;
+            overflow:hidden;
+            position:absolute;
+            bottom:0;
+            left:0;
+            right:0;
+        }
+        .ticker-wrapper { width:100%; overflow:hidden; }
+        .ticker {
+            display:inline-block;
+            white-space:nowrap;
+            font-size:1.4em;
+            color:var(--ticker-text, var(--text-accent));
+            animation:ticker 30s linear infinite;
+            font-weight:bold;
+        }
+        @keyframes ticker { 0%{transform:translateX(100%)} 100%{transform:translateX(-100%)} }
+
+        /* Display name (below channel name) */
+        .display-name {
+            font-family:'Star3000',monospace;
+            font-size:1.4em;
+            color:var(--text-primary);
+            text-align:center;
+            margin-top:10px;
+            padding-bottom:15px;
+            font-weight:bold;
+            letter-spacing:2px;
+            border-bottom:3px solid var(--text-accent);
+        }
+
+        /* Announcement display */
+        .announcement-display {
+            flex:1;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            align-items:center;
+            padding:60px 80px;
+            overflow:hidden;
+            margin-bottom:60px;
+        }
+        .announcement-content {
+            width:100%;
+            animation:scrollAnnouncementUp 20s linear forwards;
+        }
+        .announcement-headline {
+            font-family:'Star3000Large',monospace;
+            font-size:3.5em;
+            font-weight:bold;
+            text-align:center;
+            margin-bottom:50px;
+            line-height:1.3;
+        }
+        .announcement-body {
+            font-family:'Star3000',monospace;
+            font-size:2em;
+            line-height:1.8;
+            text-align:center;
+            white-space:pre-wrap;
+            max-width:90%;
+            margin:0 auto;
+        }
+        @keyframes scrollAnnouncementUp {
+            from { transform:translateY(100vh); }
+            to { transform:translateY(-120%); }
+        }
+
+        /* Fullscreen prompt */
+        .fullscreen-prompt {
+            position:fixed;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%);
+            background:rgba(0,8,20,0.95);
+            border:4px solid var(--text-accent);
+            padding:50px;
+            z-index:10003;
+            text-align:center;
+        }
+        .fullscreen-prompt h2 { font-family:'Star3000Large',monospace; font-size:2.5em; font-weight:bold; color:var(--text-accent); margin-bottom:25px; }
+        .fullscreen-prompt p { font-size:1.3em; color:var(--text-primary); margin-bottom:30px; }
+        .fullscreen-prompt button {
+            background:var(--bg-main);
+            color:var(--text-accent);
+            border:3px solid var(--text-accent);
+            padding:15px 40px;
+            font-family:'Star3000',monospace;
+            font-size:1.4em;
+            font-weight:bold;
+            cursor:pointer;
+            margin:10px;
+            text-transform:uppercase;
+        }
+        .fullscreen-prompt button:hover { opacity:0.8; }
+        .hidden { display:none; }
+
+        @keyframes scrollEventsLoop { 
+            from { 
+                transform:translateY(100vh); 
+            } 
+            to { 
+                transform:translateY(calc(-100% - 100vh)); 
+            } 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fullscreen launch prompt -->
+    <div id="fullscreenPrompt" class="fullscreen-prompt">
+        <h2>COMMUNITY CALENDAR</h2>
+        <p>Press the button below to launch</p>
+        <button onclick="startFullscreen()">START</button>
+        <button onclick="skipFullscreen()">SKIP</button>
+    </div>
+
+    <!-- Main calendar display -->
+    <div class="tv-container" id="mainContainer" style="display:none;">
+        <div id="brightnessWrapper">
+            <div class="top-bar">
+                <div class="channel-logo">
+                    <img id="channelLogo" class="channel-logo-img" style="display:none;" alt="Logo">
+                    <div class="channel-number" id="channelNumber">17</div>
+                    <div class="channel-name" id="channelName">KCAT-17 COMMUNITY ACCESS</div>
+                </div>
+                <div class="time-info">
+                    <div class="current-time" id="currentTime"></div>
+                    <div class="current-date" id="currentDate"></div>
+                </div>
+            </div>
+            
+            <!-- Display name (below header) -->
+            <div class="display-name" id="displayName">COMMUNITY CALENDAR</div>
+
+            <!-- Events display -->
+            <div class="events-scroll" id="eventsScroll">
+                <div class="events-list" id="eventsList"></div>
+            </div>
+            
+            <!-- Announcement display (hidden by default) -->
+            <div class="announcement-display" id="announcementDisplay" style="display:none;">
+                <div class="announcement-content" id="announcementContent">
+                    <div class="announcement-headline" id="annHeadline"></div>
+                    <div class="announcement-body" id="annBody"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticker at absolute bottom -->
+        <div class="bottom-bar">
+            <div class="ticker-wrapper">
+                <div class="ticker" id="ticker"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    
+    <!-- Background music player -->
+    <audio id="bgMusic" preload="auto" loop></audio>
+</body>
+</html>

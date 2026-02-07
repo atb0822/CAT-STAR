@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events Display — CAT-STAR 2000</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <link rel="shortcut icon" href="/favicon/favicon.ico">
+    <style>
+        @font-face { font-family:'Star3000'; src:url('fonts/Star3000.ttf') format('truetype'); }
+        @font-face { font-family:'Star3000Large'; src:url('fonts/Star3000_Large.ttf') format('truetype'); }
+        
+        * { margin:0; padding:0; box-sizing:border-box; }
+        
+        body {
+            font-family:'Star3000',monospace;
+            background:#0000FF;
+            color:#fff;
+            overflow:hidden;
+            margin:0;
+            padding:0;
+        }
+        
+        #eventsContainer {
+            height:100vh;
+            width:100vw;
+            display:flex;
+            flex-direction:column;
+        }
+        
+        #header {
+            padding:20px 30px;
+            background:#0000FF;
+            border-bottom:4px solid #fff;
+        }
+        
+        #displayName {
+            font-family:'Star3000Large',monospace;
+            font-size:2.5em;
+            color:#fff;
+            text-align:center;
+            text-transform:uppercase;
+        }
+        
+        #eventsScroll {
+            flex:1;
+            overflow:hidden;
+            position:relative;
+            padding:40px;
+        }
+        
+        #scrollingEvents {
+            position:absolute;
+            width:100%;
+            animation:scrollUp 60s linear infinite;
+        }
+        
+        @keyframes scrollUp {
+            0% { transform:translateY(100%); }
+            100% { transform:translateY(-100%); }
+        }
+        
+        .event-item {
+            background:rgba(255,255,255,0.1);
+            border:2px solid #fff;
+            padding:25px;
+            margin-bottom:20px;
+            display:grid;
+            grid-template-columns:300px 1fr;
+            gap:25px;
+        }
+        
+        .event-meta {
+            border-right:2px solid #fff;
+            padding-right:25px;
+            font-size:1.2em;
+        }
+        
+        .event-date {
+            font-size:1.5em;
+            font-weight:bold;
+            color:#fff;
+            margin-bottom:8px;
+        }
+        
+        .event-time, .event-location {
+            color:#fff;
+            margin-bottom:5px;
+        }
+        
+        .event-content {
+            font-size:1.2em;
+        }
+        
+        .event-title {
+            font-size:1.8em;
+            font-weight:bold;
+            color:#fff;
+            margin-bottom:10px;
+        }
+        
+        .event-description {
+            color:#fff;
+            line-height:1.6;
+        }
+        
+        #ticker {
+            background:#fff;
+            color:#0000FF;
+            padding:15px 0;
+            overflow:hidden;
+            white-space:nowrap;
+            border-top:4px solid #fff;
+        }
+        
+        #tickerText {
+            display:inline-block;
+            animation:tickerScroll 30s linear infinite;
+            font-size:1.3em;
+            font-weight:bold;
+            padding-left:100%;
+        }
+        
+        @keyframes tickerScroll {
+            0% { transform:translateX(0); }
+            100% { transform:translateX(-100%); }
+        }
+    </style>
+</head>
+<body>
+    <div id="eventsContainer">
+        <div id="header">
+            <div id="displayName">Community Calendar</div>
+        </div>
+        <div id="eventsScroll">
+            <div id="scrollingEvents"></div>
+        </div>
+        <div id="ticker">
+            <div id="tickerText"></div>
+        </div>
+    </div>
+    
+    <audio id="bgMusic" loop></audio>
+    
+    <script src="events-display.js"></script>
+</body>
+</html>
