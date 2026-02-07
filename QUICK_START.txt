@@ -1,0 +1,384 @@
+================================================================================
+                          CAT-STAR 2000 v1.3.30
+                    Cable Access Television System
+        Scheduled Television Announcements & Reports
+================================================================================
+
+Copyright © 2026 Aaron Boone. All Rights Reserved.
+
+================================================================================
+QUICK START GUIDE
+================================================================================
+
+WHAT IS CAT-STAR 2000?
+----------------------
+CAT-STAR 2000 is a professional cable access television information system 
+that displays community events, weather forecasts, and announcements in a 
+classic broadcast channel format.
+
+Perfect for:
+- Cable access TV channels
+- Community information displays
+- Municipal information systems
+- Public access channels
+
+================================================================================
+INSTALLATION
+================================================================================
+
+STEP 1: PREREQUISITES
+---------------------
+You need Node.js installed on your computer.
+
+Download from: https://nodejs.org/
+Recommended version: 18.x or higher
+
+STEP 2: EXTRACT FILES
+----------------------
+Extract the CAT-STAR 2000 ZIP file to a folder of your choice.
+Example: C:\CAT-STAR or /home/user/CAT-STAR
+
+STEP 3: START THE SERVER
+-------------------------
+Windows:
+   Double-click START_SERVER.bat
+
+Linux/Mac:
+   Open terminal in the folder
+   Run: ./START_SERVER_LINUX.sh
+
+The script will:
+1. Clear npm cache
+2. Install all required dependencies automatically
+3. Start the CAT-STAR 2000 server
+
+STEP 4: ACCESS THE SYSTEM
+--------------------------
+Open your web browser and go to:
+
+   http://localhost:3000/menu
+
+This is your main menu where you can access all features.
+
+================================================================================
+FIRST-TIME CONFIGURATION
+================================================================================
+
+1. CONFIGURE WEATHER LOCATION
+------------------------------
+   a. Click "MANAGE WEATHER"
+   b. Enter your ZIP code (e.g., 65201)
+   c. Click "LOOKUP LOCATION"
+   d. Data fills in automatically (instant lookup!)
+   e. Click "💾 SAVE ALL WEATHER SETTINGS"
+
+2. SET UP CHANNEL INFORMATION
+------------------------------
+   a. Click "ADMIN PANEL"
+   b. Enter Channel Name (e.g., "Community Information")
+   c. Enter Channel Number (e.g., "17")
+   d. Customize ticker messages
+   e. Click "💾 SAVE ALL SETTINGS"
+
+3. CONFIGURE ROTATION ORDER
+----------------------------
+   a. In Admin Panel, scroll to "Feature Display Order"
+   b. Arrange sequence: events, weather, announcements
+   c. Add items multiple times if desired (e.g., weather, weather, events)
+   d. Click "💾 SAVE ALL SETTINGS"
+
+4. CUSTOMIZE WEATHER SCREENS
+-----------------------------
+   a. Click "MANAGE WEATHER"
+   b. Scroll to "Weather Screen Playlist"
+   c. Add/remove screens as desired
+   d. Reorder with ▲ ▼ buttons
+   e. Click "💾 SAVE PLAYLIST"
+
+5. ADD YOUR CONTENT
+-------------------
+   a. Click "MANAGE EVENTS" - Add community events
+   b. Click "MANAGE ANNOUNCEMENTS" - Add sponsored content
+   c. Upload your logo in Admin Panel
+   d. Upload background music (optional)
+
+================================================================================
+IMPORTANT URLS
+================================================================================
+
+MANAGEMENT:
+-----------
+Menu:            http://localhost:3000/menu
+Admin Panel:     http://localhost:3000/admin
+Events Manager:  http://localhost:3000/events
+Weather Manager: http://localhost:3000/weather-manager
+Announcements:   http://localhost:3000/announcements
+
+LIVE DISPLAYS:
+--------------
+Main Display:         http://localhost:3000/
+Events Only:          http://localhost:3000/events-display
+Weather Only:         http://localhost:3000/weather
+Announcements Only:   http://localhost:3000/announcements-display
+
+================================================================================
+KEY FEATURES
+================================================================================
+
+✓ EVENTS DISPLAY
+  - Scrolling community calendar
+  - Configurable scroll speed
+  - Custom rotation cycles
+  - Two-column layout
+
+✓ WEATHER DISPLAY (9 Professional Screens)
+  1. Current Conditions
+  2. Latest Observations
+  3. Extended Forecast
+  4. Hourly Forecast
+  5. Local Forecast
+  6. Almanac
+  7. Travel Forecast
+  8. Regional Observations
+  9. Local Radar
+  
+  - Powered by NOAA/NWS (free, no API key)
+  - Customizable screen playlist
+  - Add screens multiple times
+  - Reorder as desired
+
+✓ ANNOUNCEMENTS DISPLAY
+  - Full-screen announcements
+  - Custom colors
+  - Scrolling animation
+  - Type labels (SPONSORED, PUBLIC SERVICE, etc.)
+
+✓ DYNAMIC ROTATION SYSTEM
+  - Custom rotation sequences
+  - Support for duplicates
+  - Example: [weather, events, weather, announcements]
+  - Full control from Admin Panel
+
+✓ MUSIC SYSTEM
+  - 4 independent playlists
+  - Event music
+  - Weather music
+  - Announcement music
+  - Master music (override all)
+  - Auto-switching between modes
+
+✓ INSTANT ZIP CODE LOOKUP
+  - 33,647 US zip codes
+  - <1ms lookup time
+  - Works offline
+  - Auto-populates location data
+
+✓ BACKUP & RESTORE
+  - One-click backup creation
+  - Complete system backup
+  - Restore from backup
+  - Includes settings, events, announcements, assets
+
+================================================================================
+NETWORK ACCESS
+================================================================================
+
+To access from other computers on your network:
+
+1. Find your computer's IP address:
+   - Admin Panel shows all network URLs
+   - Or check your network settings
+
+2. Replace "localhost" with your IP address:
+   Example: http://192.168.1.100:3000/menu
+
+3. Access from any device:
+   - Other computers
+   - Tablets
+   - Smart TVs
+   - Any device with a web browser
+
+================================================================================
+SAMPLE CONTENT
+================================================================================
+
+CAT-STAR 2000 includes sample content to help you get started:
+
+- 8 Sample Events (February 2026)
+- 7 Sample Announcements
+- 6 Default Regional Cities (Missouri)
+- Professional sample logo ("The Local Channel")
+
+You can delete all samples and add your own content!
+
+Sample data only loads on first run. If you delete samples, they won't 
+come back when you restart the server.
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+SERVER WON'T START:
+- Make sure Node.js is installed
+- Run the startup script (it installs dependencies)
+- Check port 3000 isn't already in use
+
+CAN'T ACCESS WEB INTERFACE:
+- Make sure server is running
+- Try http://127.0.0.1:3000/menu instead
+- Check firewall settings
+
+BACKUP BUTTON NOT WORKING:
+- The startup script installs required packages
+- If still not working, manually run: npm install
+
+WEATHER NOT LOADING:
+- Check internet connection (for NOAA data)
+- Verify ZIP code is valid
+- Check coordinates are correct
+
+ROTATION NOT WORKING:
+- Save settings in Admin Panel
+- Reload the display page
+- Clear browser cache (Ctrl+F5)
+- Check browser console (F12) for errors
+
+================================================================================
+TIPS & BEST PRACTICES
+================================================================================
+
+1. Create regular backups (Admin Panel → Backup & Restore)
+2. Test rotation order before going live
+3. Use custom rotation to emphasize important content
+4. Keep event descriptions concise (2-3 lines)
+5. Update announcements regularly
+6. Configure weather screen playlist to show relevant screens
+7. Upload appropriate background music
+8. Use network access for remote management
+
+================================================================================
+SYSTEM REQUIREMENTS
+================================================================================
+
+SOFTWARE:
+- Node.js 18.x or higher
+- Modern web browser (Chrome, Firefox, Edge, Safari)
+- Internet connection (for weather data)
+
+HARDWARE:
+- Windows, Linux, or macOS
+- 2GB RAM minimum
+- 500MB free disk space
+- Network connection
+
+NETWORK:
+- Port 3000 available
+- No special firewall rules needed
+
+================================================================================
+SUPPORT & DOCUMENTATION
+================================================================================
+
+DOCUMENTATION:
+- README.txt - Complete system documentation
+- This file - Quick start guide
+- In-app help in admin panels
+
+CONSOLE DEBUGGING:
+- Server console: Shows server messages
+- Browser console (F12): Shows client-side messages
+- Look for "Starting rotation with sequence..." messages
+- Check for error messages
+
+FILE LOCATIONS:
+- data/settings.json - All system settings
+- data/events.json - Events data
+- data/announcements.json - Announcements data
+- assets/logo/ - Logo files
+- assets/music/ - Music playlists
+
+================================================================================
+VERSION INFORMATION
+================================================================================
+
+Version: 1.3.30
+Released: February 2026
+Status: Production Ready
+
+WHAT'S NEW IN v1.3.30:
+- npm cache clearing on startup
+- Updated documentation
+- Font and icon credits added
+- README improvements
+- Version consistency updates
+
+NEW IN v1.3.29:
+- Complete backup & restore system
+- Automatic dependency installation
+- Improved error handling
+
+NEW IN v1.3.28:
+- Dynamic rotation order system
+- Weather screen playlist management
+- Custom rotation sequences
+- Add/remove/reorder weather screens
+
+================================================================================
+CREDITS & ATTRIBUTION
+================================================================================
+
+CAT-STAR 2000 v1.3.30
+Developed by: Aaron Boone
+Copyright © 2026 Aaron Boone. All Rights Reserved.
+
+FONTS & ICONS:
+Weather icons and Star 3000 fonts courtesy of:
+https://twcclassics.com/
+
+WEATHER DATA:
+NOAA/National Weather Service (Public Domain)
+
+ZIP CODE DATA:
+US Census Bureau (Public Domain)
+
+================================================================================
+LICENSE
+================================================================================
+
+This software is proprietary and confidential. Unauthorized copying,
+distribution, or use of this software, via any medium, is strictly prohibited.
+
+Copyright © 2026 Aaron Boone
+All Rights Reserved
+
+================================================================================
+GETTING STARTED CHECKLIST
+================================================================================
+
+□ Node.js installed
+□ CAT-STAR 2000 extracted
+□ START_SERVER script run
+□ Dependencies installed
+□ Accessed http://localhost:3000/menu
+□ Configured weather location
+□ Set channel information
+□ Configured rotation order
+□ Customized weather screens
+□ Deleted sample content
+□ Added your own events/announcements
+□ Tested all displays
+□ Created first backup
+□ Ready to deploy!
+
+================================================================================
+ENJOY YOUR CAT-STAR 2000 SYSTEM!
+================================================================================
+
+For a professional cable access television experience, CAT-STAR 2000 provides
+everything you need to inform and engage your community.
+
+GitHub: https://github.com/atb0822/CAT-STAR
+Version: 1.3.30
+Copyright © 2026 Aaron Boone. All Rights Reserved.
+
+================================================================================
